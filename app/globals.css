@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Updated color tokens to match Primed Clinic brand colors */
+  /* Updated color tokens to match new Primed Clinic brand colors */
   --background: #ffffff;
   --foreground: #000000;
   --card: #ffffff;
@@ -12,11 +12,20 @@
   --popover: #ffffff;
   --popover-foreground: #000000;
 
-  /* Brand colors from original CSS */
+  /* Updated brand colors to new black/teal palette */
   --primary: #249693; /* Main teal brand color */
   --primary-dark: #033e47; /* Dark teal for buttons */
   --primary-darker: #106759; /* Darker teal for text */
   --primary-foreground: #ffffff;
+
+  /* New black/teal design system colors */
+  --primed-black: #0d1f1e; /* Primary Dark - Black */
+  --primed-midnight-teal: #112726; /* Secondary Dark - Midnight-black Teal */
+  /* Updated bright teal from #00C2FF to more professional #14B8A6 */
+  --primed-bright-teal: #14b8a6; /* Accent - Professional Teal */
+  --primed-carbon: #121212; /* Carbon Black */
+  --primed-steel-teal: #3b4d4c; /* Steel Teal */
+  --primed-frost: #e0e0e0; /* Frost Grey */
 
   --secondary: #ebeae5; /* Cream/beige background */
   --secondary-foreground: #000000;
@@ -205,6 +214,39 @@
   .border-primary-dark {
     border-color: var(--primary-dark);
   }
+
+  /* Added new black/teal utility classes */
+  .bg-primed-black {
+    background-color: var(--primed-black);
+  }
+
+  .bg-primed-midnight-teal {
+    background-color: var(--primed-midnight-teal);
+  }
+
+  .bg-primed-bright-teal {
+    background-color: var(--primed-bright-teal);
+  }
+
+  .bg-primed-carbon {
+    background-color: var(--primed-carbon);
+  }
+
+  .bg-primed-steel-teal {
+    background-color: var(--primed-steel-teal);
+  }
+
+  .text-primed-bright-teal {
+    color: var(--primed-bright-teal);
+  }
+
+  .text-primed-frost {
+    color: var(--primed-frost);
+  }
+
+  .border-primed-steel-teal {
+    border-color: var(--primed-steel-teal);
+  }
 }
 
 /* Animations */
@@ -235,6 +277,31 @@
 
 .animate-marquee {
   animation: marquee 15s linear infinite;
+}
+
+.marquee:hover .animate-marquee {
+  animation-play-state: paused;
+}
+
+/* Link underline animation: left-to-right */
+.underline-anim-text {
+  position: relative;
+}
+.underline-anim-text::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 2px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 200ms ease;
+  color: var(--primary-foreground);
+}
+.group:hover .underline-anim-text::after {
+  transform: scaleX(1);
 }
 
 /* Swiper overrides */

@@ -2,14 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from "react";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { Menu, X } from "lucide-react";
 import { httpGet } from "@/lib/api";
 import type { TreatmentsResponse, TreatmentApi } from "@/types/treatments";
 
@@ -25,20 +19,14 @@ type StoredAuth = {
   panelLink?: string;
 };
 
-function getAuthKey(): string {
-  return (
-    process.env.NEXT_PUBLIC_USER_AUTH_KEY ||
-    process.env.NEXT_PUBLIC_AUTH_STORAGE_KEY ||
-    "user_auth"
-  );
-}
+const AUTH_STORAGE_KEY = "user_auth";
 const DEFAULT_AUTH: StoredAuth = Object.freeze({ isAuthenticated: false });
 
 function useAuthState() {
   function getSnapshot() {
     if (typeof window === "undefined") return DEFAULT_AUTH;
     try {
-      const raw = localStorage.getItem(getAuthKey());
+      const raw = localStorage.getItem(AUTH_STORAGE_KEY);
       if (!raw) return DEFAULT_AUTH;
       const parsed = JSON.parse(raw) as StoredAuth;
       return parsed ?? DEFAULT_AUTH;
@@ -69,6 +57,101 @@ function slugify(name: string) {
     .replace(/(^-|-$)+/g, "");
 }
 
+function useColorTheme() {
+  const [theme, setTheme] = useState({
+    background: "#112726",
+    text: "#FFFFFF",
+    accent: "#14B8A6",
+  });
+
+  useEffect(() => {
+    const loadTheme = () => {
+      const savedThemeId = localStorage.getItem("hero-color-theme");
+      if (savedThemeId) {
+        // Import theme data
+        const themes = [
+          {
+            id: "dark-1",
+            background: "#0D1F1E",
+            text: "#FFFFFF",
+            accent: "#14B8A6",
+          },
+          {
+            id: "dark-2",
+            background: "#000000",
+            text: "#FFFFFF",
+            accent: "#60A5FA",
+          },
+          {
+            id: "dark-3",
+            background: "#0F172A",
+            text: "#FFFFFF",
+            accent: "#34D399",
+          },
+          {
+            id: "dark-4",
+            background: "#1E293B",
+            text: "#FFFFFF",
+            accent: "#A78BFA",
+          },
+          {
+            id: "dark-5",
+            background: "#134E4A",
+            text: "#FFFFFF",
+            accent: "#FB7185",
+          },
+          {
+            id: "light-1",
+            background: "#FFFFFF",
+            text: "#0F172A",
+            accent: "#0D9488",
+          },
+          {
+            id: "light-2",
+            background: "#EFF6FF",
+            text: "#1E293B",
+            accent: "#1E40AF",
+          },
+          {
+            id: "light-3",
+            background: "#F0FDF4",
+            text: "#0F172A",
+            accent: "#059669",
+          },
+          {
+            id: "light-4",
+            background: "#F5F3FF",
+            text: "#1E293B",
+            accent: "#7C3AED",
+          },
+          {
+            id: "light-5",
+            background: "#FFF7ED",
+            text: "#0F172A",
+            accent: "#EA580C",
+          },
+        ];
+        const selectedTheme = themes.find((t) => t.id === savedThemeId);
+        if (selectedTheme) {
+          setTheme(selectedTheme);
+        }
+      }
+    };
+
+    loadTheme();
+    // Listen for storage changes
+    window.addEventListener("storage", loadTheme);
+    // Listen for custom event when theme changes
+    window.addEventListener("theme-changed", loadTheme);
+    return () => {
+      window.removeEventListener("storage", loadTheme);
+      window.removeEventListener("theme-changed", loadTheme);
+    };
+  }, []);
+
+  return theme;
+}
+
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isTreatmentsOpen, setIsTreatmentsOpen] = useState(false);
@@ -83,12 +166,15 @@ export default function Header() {
 
   const [treatments, setTreatments] = useState<Treatment[]>([]);
 
+  const colorTheme = useColorTheme();
+
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
       try {
         // Base client appends /api; use /v1 per project API prefix
         const res = await httpGet<TreatmentsResponse>("/treatments");
+        console.log("treatments", res);
         const list = Array.isArray(res?.data) ? res.data : [];
         const mapped: Treatment[] = list
           .slice(0, 10)
@@ -111,7 +197,13 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="bg-white border-b border-border sticky top-0 z-50">
+    <header
+      className="border-b sticky top-0 z-50 py-4"
+      style={{
+        backgroundColor: colorTheme.background,
+        borderBottomColor: `${colorTheme.accent}33`,
+      }}
+    >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link
@@ -119,11 +211,11 @@ export default function Header() {
             className="flex items-center"
           >
             <Image
-              src="/images/primedclinic-logo.png"
+              src="/images/Artboard 2.svg"
               alt="Primed Clinic"
               width={180}
               height={26}
-              className="h-[26px] w-auto"
+              className="w-3xs"
               priority
             />
           </Link>
@@ -135,7 +227,14 @@ export default function Header() {
               ref={menuRef}
             >
               <button
-                className="flex items-center gap-1 text-primary hover:opacity-80 transition"
+                className="flex items-center gap-1 transition"
+                style={{ color: colorTheme.text }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.color = colorTheme.accent)
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.color = colorTheme.text)
+                }
                 onClick={() => setIsTreatmentsOpen((v) => !v)}
                 aria-haspopup="menu"
                 aria-expanded={isTreatmentsOpen}
@@ -186,13 +285,27 @@ export default function Header() {
 
             <Link
               href="/our-story"
-              className="text-foreground hover:text-primary transition-colors"
+              className="transition-colors"
+              style={{ color: colorTheme.text }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.color = colorTheme.accent)
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = colorTheme.text)
+              }
             >
               How It Works
             </Link>
             <Link
               href="/contact"
-              className="text-foreground hover:text-primary transition-colors"
+              className="transition-colors"
+              style={{ color: colorTheme.text }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.color = colorTheme.accent)
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = colorTheme.text)
+              }
             >
               Contact
             </Link>
@@ -200,12 +313,32 @@ export default function Header() {
             {!isAuthenticated ? (
               <>
                 <Link href="/our-treatments">
-                  <button className="rounded-[4px] px-6 py-2 border border-primary-dark text-primary-dark hover:bg-primary-dark hover:text-white transition-colors">
+                  <button
+                    className="rounded-[4px] px-6 py-2 border transition-colors"
+                    style={{
+                      borderColor: colorTheme.accent,
+                      color: colorTheme.accent,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = colorTheme.accent;
+                      e.currentTarget.style.color = colorTheme.background;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "transparent";
+                      e.currentTarget.style.color = colorTheme.accent;
+                    }}
+                  >
                     Get Started
                   </button>
                 </Link>
                 <Link href="/login">
-                  <button className="rounded-[4px] px-6 py-2 bg-primary text-primary-foreground hover:opacity-90">
+                  <button
+                    className="rounded-[4px] px-6 py-2 hover:opacity-90"
+                    style={{
+                      backgroundColor: colorTheme.accent,
+                      color: colorTheme.background,
+                    }}
+                  >
                     Login
                   </button>
                 </Link>
@@ -219,7 +352,11 @@ export default function Header() {
                   onClick={() => setIsProfileOpen((v) => !v)}
                   aria-haspopup="menu"
                   aria-expanded={isProfileOpen}
-                  className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-semibold"
+                  className="w-8 h-8 rounded-full flex items-center justify-center font-semibold"
+                  style={{
+                    backgroundColor: colorTheme.accent,
+                    color: colorTheme.background,
+                  }}
                 >
                   {userInitial}
                 </button>
@@ -257,6 +394,7 @@ export default function Header() {
           {/* Mobile Menu Button */}
           <button
             className="md:hidden"
+            style={{ color: colorTheme.text }}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -268,7 +406,10 @@ export default function Header() {
         {isMenuOpen && (
           <nav className="md:hidden py-4 flex flex-col gap-2">
             <details className="group">
-              <summary className="flex items-center justify-between cursor-pointer list-none text-primary">
+              <summary
+                className="flex items-center justify-between cursor-pointer list-none"
+                style={{ color: colorTheme.text }}
+              >
                 <span>Our Treatments</span>
                 <img
                   src="/images/arrowNavDown.png"
@@ -283,7 +424,11 @@ export default function Header() {
                     href={`/questionnaire/${slugify(t.name)}/${
                       t.id
                     }/start-quiz`}
-                    className="block px-3 py-2 border border-border rounded-md text-primary hover:bg-muted/50"
+                    className="block px-3 py-2 border rounded-md hover:bg-opacity-10"
+                    style={{
+                      borderColor: `${colorTheme.accent}66`,
+                      color: colorTheme.text,
+                    }}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {t.name}
@@ -293,22 +438,25 @@ export default function Header() {
             </details>
 
             <Link
-              href="/how-it-works"
-              className="text-foreground hover:text-primary transition-colors px-1 py-2"
+              href="/our-story"
+              className="transition-colors px-1 py-2"
+              style={{ color: colorTheme.text }}
               onClick={() => setIsMenuOpen(false)}
             >
               How It Works
             </Link>
             <Link
               href="/about"
-              className="text-foreground hover:text-primary transition-colors px-1 py-2"
+              className="transition-colors px-1 py-2"
+              style={{ color: colorTheme.text }}
               onClick={() => setIsMenuOpen(false)}
             >
               About
             </Link>
             <Link
               href="/contact"
-              className="text-foreground hover:text-primary transition-colors px-1 py-2"
+              className="transition-colors px-1 py-2"
+              style={{ color: colorTheme.text }}
               onClick={() => setIsMenuOpen(false)}
             >
               Contact
@@ -320,7 +468,13 @@ export default function Header() {
                   href="/our-treatments"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <button className="rounded-[4px] px-4 py-2 border border-primary-dark text-primary-dark hover:bg-primary-dark hover:text-white transition-colors">
+                  <button
+                    className="rounded-[4px] px-4 py-2 border transition-colors"
+                    style={{
+                      borderColor: colorTheme.accent,
+                      color: colorTheme.accent,
+                    }}
+                  >
                     Get Started
                   </button>
                 </Link>
@@ -328,7 +482,13 @@ export default function Header() {
                   href="/login"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <button className="rounded-[4px] px-4 py-2 bg-primary text-primary-foreground hover:opacity-90">
+                  <button
+                    className="rounded-[4px] px-4 py-2 hover:opacity-90"
+                    style={{
+                      backgroundColor: colorTheme.accent,
+                      color: colorTheme.background,
+                    }}
+                  >
                     Login
                   </button>
                 </Link>
@@ -338,7 +498,13 @@ export default function Header() {
                 href={panelLink}
                 onClick={() => setIsMenuOpen(false)}
               >
-                <button className="rounded-[4px] px-4 py-2 bg-primary text-primary-foreground hover:opacity-90">
+                <button
+                  className="rounded-[4px] px-4 py-2 hover:opacity-90"
+                  style={{
+                    backgroundColor: colorTheme.accent,
+                    color: colorTheme.background,
+                  }}
+                >
                   My Account
                 </button>
               </Link>
