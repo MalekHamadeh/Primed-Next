@@ -1,9 +1,34 @@
 "use client";
 import Link from "next/link";
-import { useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { getThemeById, type ColorTheme } from "@/components/color-theme-picker";
 
 export default function CallToAction() {
   const AUTH_STORAGE_KEY = "user_auth";
+
+  function useColorTheme(): ColorTheme {
+    const [theme, setTheme] = useState<ColorTheme>(() => {
+      if (typeof window !== "undefined") {
+        const saved = localStorage.getItem("hero-color-theme") || "primed";
+        return getThemeById(saved);
+      }
+      return getThemeById("primed");
+    });
+    useEffect(() => {
+      const loadTheme = () => {
+        const saved = localStorage.getItem("hero-color-theme") || "primed";
+        setTheme(getThemeById(saved));
+      };
+      loadTheme();
+      window.addEventListener("storage", loadTheme);
+      window.addEventListener("theme-changed", loadTheme);
+      return () => {
+        window.removeEventListener("storage", loadTheme);
+        window.removeEventListener("theme-changed", loadTheme);
+      };
+    }, []);
+    return theme;
+  }
 
   function getAuthSnapshot() {
     if (typeof window === "undefined") return false;
@@ -36,6 +61,8 @@ export default function CallToAction() {
     ? "/patient/treatment-plans"
     : "/our-treatments";
 
+  const theme = useColorTheme();
+
   return (
     <div className="text-center animate-fade-in">
       <h2 className="text-3xl md:text-[35px] font-bold mb-2">
@@ -50,7 +77,21 @@ export default function CallToAction() {
           href={primaryHref}
           scroll
         >
-          <button className="rounded-[4px] px-6 py-2 border border-primary-dark text-primary-dark hover:bg-primary-dark hover:text-white transition-colors">
+          <button
+            className="rounded-md px-5 py-2.5 border font-medium tracking-wide transition-all duration-200"
+            style={{
+              borderColor: theme.accent,
+              color: theme.accent,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = theme.accent;
+              e.currentTarget.style.color = theme.background;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "transparent";
+              e.currentTarget.style.color = theme.accent;
+            }}
+          >
             {isAuthenticated ? "Check Your Treatment" : "Get Started"}
           </button>
         </Link>
@@ -58,7 +99,13 @@ export default function CallToAction() {
           href="/contact"
           scroll
         >
-          <button className="rounded-[4px] px-6 py-2 bg-primary-dark text-white hover:opacity-80">
+          <button
+            className="rounded-md px-5 py-2.5 font-medium tracking-wide transition-all duration-200 hover:opacity-90"
+            style={{
+              backgroundColor: theme.accent,
+              color: theme.background,
+            }}
+          >
             Contact Us
           </button>
         </Link>

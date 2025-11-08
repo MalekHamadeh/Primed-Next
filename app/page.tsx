@@ -1,300 +1,55 @@
 "use client";
 
-import { useSyncExternalStore, useState, useEffect, useRef } from "react";
-import Link from "next/link";
-import Image from "next/image";
+import { useEffect, useState } from "react";
 import TreatmentsSwiper from "@/components/treatments-swiper";
-import HowItWorksCard from "@/components/how-it-works-card";
-import Faq from "@/components/faq-section";
 import CallToAction from "@/components/call-to-action";
 import DescriptionCard from "@/components/description-card";
-import BenefitsCard from "@/components/benefits-card";
-import ValuePropBar from "@/components/value-prop-bar";
 import FadeInOnScroll from "@/components/fade-in-on-scroll";
-import ColorThemePicker, {
-  type ColorTheme,
-  colorThemes,
-} from "@/components/color-theme-picker";
+import HeroSection from "@/components/hero-section";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Check, ArrowRight, Clock } from "lucide-react";
+import { getThemeById, type ColorTheme } from "@/components/color-theme-picker";
 
-const AUTH_STORAGE_KEY = "user_auth";
+function useColorTheme(): ColorTheme {
+  const [theme, setTheme] = useState<ColorTheme>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("hero-color-theme") || "primed";
+      return getThemeById(saved);
+    }
+    return getThemeById("primed");
+  });
 
-// External auth state is stored in localStorage under AUTH_STORAGE_KEY.
-// We read it via a snapshot function and subscribe to storage events so
-// React can re-render when it changes (without calling setState in effects).
-function getAuthSnapshot() {
-  if (typeof window === "undefined") return false;
-  try {
-    const authState = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (!authState) return false;
-    const parsed = JSON.parse(authState);
-    return parsed?.isAuthenticated === true;
-  } catch {
-    return false;
-  }
-}
+  useEffect(() => {
+    const loadTheme = () => {
+      const saved = localStorage.getItem("hero-color-theme") || "primed";
+      setTheme(getThemeById(saved));
+    };
+    loadTheme();
+    window.addEventListener("storage", loadTheme);
+    window.addEventListener("theme-changed", loadTheme);
+    return () => {
+      window.removeEventListener("storage", loadTheme);
+      window.removeEventListener("theme-changed", loadTheme);
+    };
+  }, []);
 
-// Subscribe to cross-tab/localStorage updates. React will call the snapshot
-// again when this fires to get the latest value.
-function subscribeToAuth(callback: () => void) {
-  const handler = () => callback();
-  window.addEventListener("storage", handler);
-  return () => window.removeEventListener("storage", handler);
+  return theme;
 }
 
 export default function Home() {
-  // Derive auth from an external store (localStorage):
-  // - subscribe: revalidate on storage changes
-  // - getSnapshot: current client value
-  // - getServerSnapshot: false during SSR to avoid hydration mismatches
-  const isAuthenticated = useSyncExternalStore(
-    subscribeToAuth,
-    getAuthSnapshot,
-    () => false
-  );
-
-  const authRedirectUrl = "/patient/treatment-plans";
-
-  const [heroTheme, setHeroTheme] = useState<ColorTheme>(colorThemes[0]);
-  const heroImages = [
-    "/images/hero/ELDER 2.jpg",
-    "/images/hero/ELDER.jpg",
-    "/images/hero/gym 3.jpg",
-    "/images/hero/gym 2.jpg",
-    "/images/hero/gym.jpg",
-  ];
-  const [currentBgIndex, setCurrentBgIndex] = useState(0);
-  const lastInteractionRef = useRef(0);
-
-  useEffect(() => {
-    if (heroImages.length <= 1) return;
-    const intervalId = window.setInterval(() => {
-      if (Date.now() - lastInteractionRef.current < 8000) return;
-      setCurrentBgIndex((idx) => (idx + 1) % heroImages.length);
-    }, 6000);
-    return () => window.clearInterval(intervalId);
-  }, [heroImages.length]);
-
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
-  const handleDotClick = (index: number) => {
-    lastInteractionRef.current = Date.now();
-    setCurrentBgIndex(index);
-  };
+  useState();
+  const colorTheme = useColorTheme();
 
   return (
     <div>
       <div id="home_page">
-        {/* Hero Section */}
-        <section
-          className="bg-primed-black w-full py-30 relative overflow-hidden"
-          style={{
-            backgroundColor: heroTheme.background,
-            fontFamily: "var(--font-proxima)",
-          }}
-        >
-          {/* Background image carousel */}
-          <div className="absolute inset-0 z-0">
-            {heroImages.map((src, index) => (
-              <div
-                key={src}
-                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                  index === currentBgIndex ? "opacity-100" : "opacity-0"
-                }`}
-              >
-                <Image
-                  src={src}
-                  alt="Hero background"
-                  fill
-                  priority={index === 0}
-                  className="object-cover"
-                  sizes="100vw"
-                />
-              </div>
-            ))}
-            {/* Readability overlay */}
-            {/* <div className="absolute inset-0 bg-black/40" /> */}
-          </div>
-
-          <div className="container text-left px-4 relative z-10 font-sans!">
-            <div className="max-w-4xl text-left pl-18">
-              {/* Eyebrow text */}
-              <p
-                className="text-primed-bright-teal text-sm md:text-base font-semibold tracking-wide uppercase mb-6"
-                style={{ color: heroTheme.accent }}
-              >
-                Better You
-              </p>
-
-              {/* Main headline */}
-              <h1
-                className="text-5xl md:text-6xl lg:text-7xl font-light text-white leading-[1.1] mb-6"
-                style={{ color: heroTheme.text }}
-              >
-                Your Body. Your Goals.{" "}
-                <span
-                  className="text-primed-bright-teal"
-                  style={{ color: heroTheme.accent }}
-                >
-                  Your PRIME.
-                </span>
-              </h1>
-
-              {/* Subheading */}
-              <p
-                className="text-lg md:text-xl text-white/80 max-w-2xl mb-10 leading-relaxed"
-                style={{
-                  color: heroTheme.isDark
-                    ? "rgba(255, 255, 255, 0.8)"
-                    : "rgba(15, 23, 42, 0.7)",
-                }}
-              >
-                Access Personalised Treatments and Medical Programmes To Help
-                Optimise The Way You Look, Feel, Perform and Live.
-              </p>
-
-              {/* CTA buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-start items-start mb-16">
-                <Link
-                  href={isAuthenticated ? authRedirectUrl : "/our-treatments"}
-                  onClick={scrollToTop}
-                >
-                  <button
-                    className="bg-primed-bright-teal text-primed-midnight-teal rounded-xl px-8 py-4 font-bold text-lg hover:opacity-90 transition-opacity w-full sm:w-auto min-w-[200px]"
-                    style={{
-                      backgroundColor: heroTheme.accent,
-                      color: heroTheme.isDark
-                        ? heroTheme.background
-                        : "#FFFFFF",
-                    }}
-                  >
-                    Get Started
-                  </button>
-                </Link>
-                <Link
-                  href="/how-it-works"
-                  onClick={scrollToTop}
-                >
-                  <button
-                    className="bg-transparent border-2 border-white/20 text-white rounded-lg px-8 py-4 font-semibold text-lg hover:border-primed-bright-teal hover:text-primed-bright-teal transition-colors w-full sm:w-auto min-w-[200px]"
-                    style={{
-                      borderColor: heroTheme.isDark
-                        ? "rgba(255, 255, 255, 0.2)"
-                        : "rgba(15, 23, 42, 0.2)",
-                      color: heroTheme.text,
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = heroTheme.accent;
-                      e.currentTarget.style.color = heroTheme.accent;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = heroTheme.isDark
-                        ? "rgba(255, 255, 255, 0.2)"
-                        : "rgba(15, 23, 42, 0.2)";
-                      e.currentTarget.style.color = heroTheme.text;
-                    }}
-                  >
-                    How It Works
-                  </button>
-                </Link>
-              </div>
-
-              {/* Stats/Social proof */}
-              <div
-                className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl pt-8 "
-                // style={{
-                //   borderColor: heroTheme.isDark
-                //     ? "rgba(255, 255, 255, 0.1)"
-                //     : "rgba(15, 23, 42, 0.1)",
-                // }}
-              >
-                {/* <div className="text-left">
-                  <div
-                    className="text-3xl md:text-4xl font-bold mb-2"
-                    style={{ color: heroTheme.accent }}
-                  >
-                    1000+
-                  </div>
-                  <div
-                    className="text-white/60 text-sm"
-                    style={{
-                      color: heroTheme.isDark
-                        ? "rgba(255, 255, 255, 0.6)"
-                        : "rgba(15, 23, 42, 0.6)",
-                    }}
-                  >
-                    Patients Treated
-                  </div>
-                </div>
-                <div className="text-left">
-                  <div
-                    className="text-3xl md:text-4xl font-bold mb-2"
-                    style={{ color: heroTheme.accent }}
-                  >
-                    50+
-                  </div>
-                  <div
-                    className="text-white/60 text-sm"
-                    style={{
-                      color: heroTheme.isDark
-                        ? "rgba(255, 255, 255, 0.6)"
-                        : "rgba(15, 23, 42, 0.6)",
-                    }}
-                  >
-                    Expert Doctors
-                  </div>
-                </div>
-                <div className="text-left">
-                  <div
-                    className="text-3xl md:text-4xl font-bold mb-2"
-                    style={{ color: heroTheme.accent }}
-                  >
-                    98%
-                  </div>
-                  <div
-                    className="text-white/60 text-sm"
-                    style={{
-                      color: heroTheme.isDark
-                        ? "rgba(255, 255, 255, 0.6)"
-                        : "rgba(15, 23, 42, 0.6)",
-                    }}
-                  >
-                    Satisfaction Rate
-                  </div>
-                </div> */}
-              </div>
-            </div>
-          </div>
-
-          {/* Hero pagination dots */}
-          <div className="absolute bottom-6 right-4 z-20 flex gap-2">
-            {heroImages.map((_, index) => (
-              <button
-                key={index}
-                type="button"
-                aria-label={`Show hero image ${index + 1}`}
-                onClick={() => handleDotClick(index)}
-                className="w-3.5 h-3.5 rounded-full border transition-colors"
-                style={{
-                  backgroundColor:
-                    index === currentBgIndex ? heroTheme.accent : "transparent",
-                  borderColor: heroTheme.isDark
-                    ? "rgba(255, 255, 255, 0.6)"
-                    : "rgba(15, 23, 42, 0.5)",
-                }}
-              />
-            ))}
-          </div>
-        </section>
+        <HeroSection variant="flip" />
 
         {/* Description Section */}
         <FadeInOnScroll>
-          <section className="py-24 bg-linear-to-br from-teal-50 via-white to-cyan-50">
-            <div className="container mx-auto px-4">
+          <section className="py-34">
+            <div className="container mx-auto">
               <DescriptionCard />
             </div>
           </section>
@@ -302,9 +57,9 @@ export default function Home() {
 
         {/* Treatments Section */}
         <FadeInOnScroll>
-          <section className="bg-secondary py-16">
+          <section className="bg-secondary py-34">
             <div className="container mx-auto px-4">
-              <div className="text-center max-w-[450px] mx-auto">
+              <div className="text-center mx-auto">
                 <h2 className="text-[35px] font-bold mb-4">
                   For A Better You
                   <br />
@@ -318,45 +73,249 @@ export default function Home() {
           </section>
         </FadeInOnScroll>
 
-        {/* Benefits Section */}
+        {/* Benefits Section (Themed two-column) */}
         <FadeInOnScroll>
-          <section className="py-16">
-            <div className="container mx-auto px-4">
-              <div className="text-center max-w-[350px] mx-auto mb-6">
-                <h2 className="text-[35px] font-bold">Benefits</h2>
-                <h5 className="text-[20px] font-semibold mt-2">
+          <section className="flex items-center justify-center py-12 lg:py-20">
+            <div className="container w-full">
+              {/* Section Header */}
+              <div className="text-center mb-12 space-y-3">
+                <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
+                  Benefits
+                </h2>
+                <p className="text-xl">
                   Gain Access to Leading Doctors Here Today.
-                </h5>
+                </p>
               </div>
-              <BenefitsCard />
+
+              <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                {/* Left Column - Image */}
+                <div className="relative group order-2 lg:order-1">
+                  <div className="relative rounded-2xl overflow-hidden">
+                    <Image
+                      src="/images/doctors_image.jpg"
+                      alt="Professional medical doctors"
+                      width={600}
+                      height={800}
+                      className="w-full h-auto"
+                    />
+                  </div>
+                </div>
+
+                {/* Right Column - Benefits */}
+                <div className="space-y-8 order-1 lg:order-2">
+                  {/* Consultation Fee Highlight */}
+                  <div
+                    className="rounded-2xl p-6 shadow-lg border-2"
+                    style={{
+                      background: `${colorTheme.accent}0D`,
+                      borderColor: `${colorTheme.accent}33`,
+                    }}
+                  >
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-lg font-medium">
+                        Consultation Fee =
+                      </span>
+                      <span className="text-5xl font-bold">$0</span>
+                    </div>
+                  </div>
+
+                  {/* Benefits List */}
+                  <div className="space-y-5">
+                    {[
+                      "Comprehensive medical review and personalised treatment",
+                      "Access to your own online portal - appointments, online ordering, prescriptions",
+                      "No waiting rooms. No hidden fees. No referral required",
+                      "Only pay for your treatment",
+                      "More affordable compared to other clinics and providers",
+                      "Australia-wide free express delivery",
+                      "FREE Premium support and ongoing transparent and compassionate care",
+                    ].map((benefit, index) => (
+                      <div
+                        key={index}
+                        className="flex gap-4 items-start group hover:translate-x-1 transition-transform duration-200"
+                      >
+                        <div className="shrink-0 mt-0.5">
+                          <div
+                            className="w-6 h-6 rounded-md flex items-center justify-center transition-colors duration-200"
+                            style={{
+                              backgroundColor: colorTheme.accent,
+                              color: "#FFFFFF",
+                            }}
+                          >
+                            <Check
+                              className="h-4 w-4"
+                              strokeWidth={3}
+                            />
+                          </div>
+                        </div>
+                        <p className="leading-relaxed font-medium">{benefit}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* CTA Button */}
+                  <div className="pt-4">
+                    <Button
+                      size="lg"
+                      className="w-full sm:w-auto text-white px-8 py-6 text-lg font-semibold shadow-xl transition-all duration-300"
+                      style={{
+                        background: `linear-gradient(to right, ${colorTheme.accent}, ${colorTheme.accent})`,
+                        color: "#FFFFFF",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.filter = "brightness(0.95)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.filter = "none";
+                      }}
+                    >
+                      Get Started
+                      <Check className="ml-2 h-5 w-5" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
         </FadeInOnScroll>
 
-        {/* How It Works Section */}
+        {/* How It Works Section (New themed layout) */}
         <FadeInOnScroll>
-          <section className="py-16">
-            <div className="container mx-auto px-4">
-              <div className="text-center max-w-[350px] mx-auto mb-6">
-                <h2 className="text-[35px] font-bold">How It Works</h2>
+          <section className="flex items-center justify-center py-16 lg:py-24 bg-secondary">
+            <div className="container w-full">
+              <div className="text-center mb-16 space-y-4">
+                <div
+                  className="inline-block px-4 py-1.5 rounded-md text-sm font-semibold mb-4"
+                  style={{
+                    backgroundColor: colorTheme.accent,
+                    color: colorTheme.background,
+                  }}
+                >
+                  SIMPLE PROCESS
+                </div>
+                <h2 className="text-5xl md:text-6xl font-bold tracking-tight">
+                  How It Works
+                </h2>
+                <p className="text-xl max-w-2xl mx-auto">
+                  Your journey to better health in four simple steps
+                </p>
               </div>
-              <HowItWorksCard />
-            </div>
-          </section>
-        </FadeInOnScroll>
 
-        {/* FAQ Section */}
-        <FadeInOnScroll>
-          <section>
-            <div className="bg-secondary w-full">
-              <Faq />
+              <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                <div className="relative">
+                  <div
+                    className="relative rounded-2xl overflow-hidden shadow-xl border-2"
+                    style={{ borderColor: `${colorTheme.accent}33` }}
+                  >
+                    <Image
+                      src="/images/how_it_works.jpg"
+                      alt="Healthcare professional ready to help"
+                      width={600}
+                      height={800}
+                      className="w-full h-auto"
+                    />
+                  </div>
+                  <div
+                    className="absolute -top-4 -left-4 w-20 h-20 border-t-4 border-l-4 rounded-tl-2xl"
+                    style={{ borderColor: colorTheme.accent }}
+                  />
+                  <div
+                    className="absolute -bottom-4 -right-4 w-20 h-20 border-b-4 border-r-4 rounded-br-2xl"
+                    style={{ borderColor: colorTheme.accent }}
+                  />
+                </div>
+
+                <div className="relative space-y-8">
+                  <div
+                    className="absolute left-6 top-10 bottom-10 w-0.5"
+                    style={{ backgroundColor: `${colorTheme.accent}4D` }}
+                  />
+                  {[
+                    {
+                      step: "1",
+                      title: "Online Questionnaire",
+                      description:
+                        "Answer some questions, ensure you are eligible, and receive the right treatment to help you achieve your goals.",
+                    },
+                    {
+                      step: "2",
+                      title: "Telehealth",
+                      description:
+                        "Spend time discussing options available with our clinician. A suitable treatment plan will be available for you to order within 24 hours.",
+                    },
+                    {
+                      step: "3",
+                      title: "Treatment Delivered",
+                      description:
+                        "Upon order, our partner compounding pharmacy will have your prescription filled and start preparing your treatment. Express delivered to your door once ready.",
+                    },
+                    {
+                      step: "4",
+                      title: "Ongoing Premium Support",
+                      description:
+                        "We're available to address any questions, with continued guidance to help you reach those goals, committed to helping you look and feel better.",
+                    },
+                  ].map((item) => (
+                    <div
+                      key={item.step}
+                      className="flex gap-6 relative"
+                    >
+                      <div className="shrink-0 relative z-10">
+                        <div
+                          className="w-12 h-12 rounded-xl flex text-white items-center justify-center font-bold transition-all duration-300"
+                          style={{
+                            backgroundColor: colorTheme.accent,
+                          }}
+                        >
+                          {item.step}
+                        </div>
+                      </div>
+                      <div className="space-y-2 flex-1 pt-1 pb-2">
+                        <h3 className="font-bold text-xl">{item.title}</h3>
+                        <p className="leading-relaxed">{item.description}</p>
+                      </div>
+                    </div>
+                  ))}
+
+                  <div className="space-y-4 pt-4 pl-0">
+                    <Button
+                      size="lg"
+                      className="w-full sm:w-auto px-10 py-6 text-lg font-semibold shadow-xl transition-all duration-300"
+                      style={{
+                        backgroundColor: colorTheme.accent,
+                        color: colorTheme.background,
+                        boxShadow: `${colorTheme.accent}33 0px 10px 30px`,
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.filter = "brightness(0.95)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.filter = "none";
+                      }}
+                    >
+                      Start Your Journey
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+
+                    <div className="flex items-center gap-3 text-sm rounded-xl p-4">
+                      <Clock
+                        className="h-5 w-5"
+                        style={{ color: colorTheme.accent }}
+                      />
+                      <span className="font-medium">
+                        Treatment plan typically available within 24-48 hours
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
         </FadeInOnScroll>
 
         {/* Call to Action Section */}
         <FadeInOnScroll>
-          <section className="bg-muted py-12">
+          <section className="py-12">
             <div className="container mx-auto px-4">
               <CallToAction />
             </div>

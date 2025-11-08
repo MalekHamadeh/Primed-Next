@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Menu, X } from "lucide-react";
 import { httpGet } from "@/lib/api";
+import { getThemeById, type ColorTheme } from "@/components/color-theme-picker";
 import type { TreatmentsResponse, TreatmentApi } from "@/types/treatments";
 
 type Treatment = {
@@ -58,90 +59,22 @@ function slugify(name: string) {
 }
 
 function useColorTheme() {
-  const [theme, setTheme] = useState({
-    background: "#112726",
-    text: "#FFFFFF",
-    accent: "#14B8A6",
+  const [theme, setTheme] = useState<ColorTheme>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("hero-color-theme") || "primed";
+      return getThemeById(saved);
+    }
+    return getThemeById("primed");
   });
 
   useEffect(() => {
     const loadTheme = () => {
-      const savedThemeId = localStorage.getItem("hero-color-theme");
-      if (savedThemeId) {
-        // Import theme data
-        const themes = [
-          {
-            id: "dark-1",
-            background: "#0D1F1E",
-            text: "#FFFFFF",
-            accent: "#14B8A6",
-          },
-          {
-            id: "dark-2",
-            background: "#000000",
-            text: "#FFFFFF",
-            accent: "#60A5FA",
-          },
-          {
-            id: "dark-3",
-            background: "#0F172A",
-            text: "#FFFFFF",
-            accent: "#34D399",
-          },
-          {
-            id: "dark-4",
-            background: "#1E293B",
-            text: "#FFFFFF",
-            accent: "#A78BFA",
-          },
-          {
-            id: "dark-5",
-            background: "#134E4A",
-            text: "#FFFFFF",
-            accent: "#FB7185",
-          },
-          {
-            id: "light-1",
-            background: "#FFFFFF",
-            text: "#0F172A",
-            accent: "#0D9488",
-          },
-          {
-            id: "light-2",
-            background: "#EFF6FF",
-            text: "#1E293B",
-            accent: "#1E40AF",
-          },
-          {
-            id: "light-3",
-            background: "#F0FDF4",
-            text: "#0F172A",
-            accent: "#059669",
-          },
-          {
-            id: "light-4",
-            background: "#F5F3FF",
-            text: "#1E293B",
-            accent: "#7C3AED",
-          },
-          {
-            id: "light-5",
-            background: "#FFF7ED",
-            text: "#0F172A",
-            accent: "#EA580C",
-          },
-        ];
-        const selectedTheme = themes.find((t) => t.id === savedThemeId);
-        if (selectedTheme) {
-          setTheme(selectedTheme);
-        }
-      }
+      const saved = localStorage.getItem("hero-color-theme") || "primed";
+      setTheme(getThemeById(saved));
     };
 
     loadTheme();
-    // Listen for storage changes
     window.addEventListener("storage", loadTheme);
-    // Listen for custom event when theme changes
     window.addEventListener("theme-changed", loadTheme);
     return () => {
       window.removeEventListener("storage", loadTheme);
@@ -172,7 +105,6 @@ export default function Header() {
     let cancelled = false;
     const load = async () => {
       try {
-        // Base client appends /api; use /v1 per project API prefix
         const res = await httpGet<TreatmentsResponse>("/treatments");
         console.log("treatments", res);
         const list = Array.isArray(res?.data) ? res.data : [];
@@ -204,7 +136,7 @@ export default function Header() {
         borderBottomColor: `${colorTheme.accent}33`,
       }}
     >
-      <div className="mx-auto px-20">
+      <div className="container mx-auto">
         <div className="flex items-center justify-between h-16">
           <Link
             href="/"
@@ -220,61 +152,116 @@ export default function Header() {
             />
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-6 lg:gap-8">
+          <nav className="hidden md:flex items-center gap-8">
             <div
               className="relative"
               ref={menuRef}
             >
               <button
-                className="flex items-center gap-1 transition"
+                className="flex items-center gap-1.5 font-medium tracking-wide transition-all duration-200 hover:opacity-80"
                 style={{ color: colorTheme.text }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.color = colorTheme.accent)
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.color = colorTheme.text)
-                }
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = colorTheme.accent;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = colorTheme.text;
+                }}
                 onClick={() => setIsTreatmentsOpen((v) => !v)}
                 aria-haspopup="menu"
                 aria-expanded={isTreatmentsOpen}
               >
                 GOALS
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/images/arrowNavDown.png"
-                  alt="Open"
-                  className={`w-[14px] h-[15px] ml-[7px] mb-px transition-transform ${
+                <svg
+                  width="12"
+                  height="8"
+                  viewBox="0 0 12 8"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className={`transition-transform duration-300 ${
                     isTreatmentsOpen ? "rotate-180" : ""
                   }`}
-                />
+                >
+                  <path
+                    d="M1 1.5L6 6.5L11 1.5"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </button>
 
               {isTreatmentsOpen && (
                 <div
-                  className="absolute left-1/2 -translate-x-1/2 mt-3 w-screen max-w-6xl bg-card border border-border rounded-md shadow-lg p-4"
+                  className="absolute left-1/2 -translate-x-1/2 mt-4 w-screen max-w-5xl rounded-lg shadow-2xl overflow-hidden"
+                  style={{
+                    backgroundColor: colorTheme.background,
+                    border: `1px solid ${colorTheme.accent}33`,
+                  }}
                   onMouseLeave={() => setIsTreatmentsOpen(false)}
                 >
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                  <div
+                    className="px-6 py-4 border-b"
+                    style={{
+                      borderBottomColor: `${colorTheme.accent}22`,
+                    }}
+                  >
+                    <h3
+                      className="text-sm font-semibold tracking-wider uppercase"
+                      style={{ color: colorTheme.accent }}
+                    >
+                      Choose Your Goal
+                    </h3>
+                    <p
+                      className="text-xs mt-1 opacity-70"
+                      style={{ color: colorTheme.text }}
+                    >
+                      Select a treatment path tailored to your needs
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-5 gap-4 p-6 items-stretch">
                     {treatments.map((t) => (
                       <Link
                         key={t.id}
                         href={`/questionnaire/${slugify(t.name)}/${
                           t.id
                         }/start-quiz`}
-                        className="no-underline"
+                        className="no-underline group block h-full"
                         onClick={() => setIsTreatmentsOpen(false)}
                       >
-                        <div className="flex flex-col items-center text-center bg-white rounded-md p-2 hover:bg-muted/60 transition-colors">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={t.image || "/images/weight_loss.jpg"}
-                            alt={t.name}
-                            className="w-full h-[210px] object-cover rounded-xl mb-2"
-                          />
-                          <span className="text-primary text-[14px] leading-tight font-light">
-                            <strong className="font-medium">{t.name}</strong>
-                          </span>
+                        <div
+                          className="flex flex-col h-full rounded-lg overflow-hidden transition-all duration-300 hover:scale-105"
+                          style={{
+                            backgroundColor: `${colorTheme.accent}08`,
+                            border: `1px solid ${colorTheme.accent}15`,
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = `${colorTheme.accent}15`;
+                            e.currentTarget.style.borderColor = `${colorTheme.accent}40`;
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = `${colorTheme.accent}08`;
+                            e.currentTarget.style.borderColor = `${colorTheme.accent}15`;
+                          }}
+                        >
+                          <div className="relative aspect-square overflow-hidden">
+                            <Image
+                              src={t.image || "/images/weight_loss.jpg"}
+                              alt={t.name}
+                              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                              width={210}
+                              height={210}
+                            />
+                          </div>
+                          <div className="p-3 min-h-12 flex items-center justify-center">
+                            <span
+                              className="text-sm font-medium leading-tight block text-center"
+                              style={{ color: colorTheme.text }}
+                            >
+                              {t.name}
+                            </span>
+                          </div>
                         </div>
                       </Link>
                     ))}
@@ -285,7 +272,7 @@ export default function Header() {
 
             <Link
               href="/our-story"
-              className="transition-colors"
+              className="font-medium tracking-wide transition-all duration-200 hover:opacity-80"
               style={{ color: colorTheme.text }}
               onMouseEnter={(e) =>
                 (e.currentTarget.style.color = colorTheme.accent)
@@ -298,7 +285,7 @@ export default function Header() {
             </Link>
             <Link
               href="/contact"
-              className="transition-colors"
+              className="font-medium tracking-wide transition-all duration-200 hover:opacity-80"
               style={{ color: colorTheme.text }}
               onMouseEnter={(e) =>
                 (e.currentTarget.style.color = colorTheme.accent)
@@ -311,10 +298,10 @@ export default function Header() {
             </Link>
 
             {!isAuthenticated ? (
-              <>
+              <div className="flex items-center gap-3 ml-10">
                 <Link href="/our-treatments">
                   <button
-                    className="rounded-[4px] px-6 py-2 border transition-colors"
+                    className="rounded-md px-5 py-2.5 border font-medium tracking-wide transition-all duration-200"
                     style={{
                       borderColor: colorTheme.accent,
                       color: colorTheme.accent,
@@ -333,7 +320,7 @@ export default function Header() {
                 </Link>
                 <Link href="/login">
                   <button
-                    className="rounded-[4px] px-6 py-2 hover:opacity-90"
+                    className="rounded-md px-5 py-2.5 font-medium tracking-wide transition-all duration-200 hover:opacity-90"
                     style={{
                       backgroundColor: colorTheme.accent,
                       color: colorTheme.background,
@@ -342,17 +329,17 @@ export default function Header() {
                     Login
                   </button>
                 </Link>
-              </>
+              </div>
             ) : (
               <div
-                className="relative"
+                className="relative ml-2"
                 ref={profileRef}
               >
                 <button
                   onClick={() => setIsProfileOpen((v) => !v)}
                   aria-haspopup="menu"
                   aria-expanded={isProfileOpen}
-                  className="w-8 h-8 rounded-full flex items-center justify-center font-semibold"
+                  className="w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-200 hover:opacity-90"
                   style={{
                     backgroundColor: colorTheme.accent,
                     color: colorTheme.background,
@@ -361,13 +348,26 @@ export default function Header() {
                   {userInitial}
                 </button>
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-border py-2">
-                    <div className="flex items-center gap-2 px-4 py-2 text-primary-darker">
+                  <div
+                    className="absolute right-0 mt-2 w-56 rounded-lg shadow-xl overflow-hidden"
+                    style={{
+                      backgroundColor: colorTheme.background,
+                      border: `1px solid ${colorTheme.accent}33`,
+                    }}
+                  >
+                    <div
+                      className="flex items-center gap-3 px-4 py-3 border-b"
+                      style={{
+                        color: colorTheme.text,
+                        borderBottomColor: `${colorTheme.accent}22`,
+                      }}
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
-                        className="w-5 h-5 text-gray-400"
+                        className="w-5 h-5"
+                        style={{ color: colorTheme.accent }}
                         aria-hidden="true"
                       >
                         <path
@@ -376,12 +376,20 @@ export default function Header() {
                           clipRule="evenodd"
                         />
                       </svg>
-                      <span className="text-sm">{auth.userName}</span>
+                      <span className="text-sm font-medium">
+                        {auth.userName}
+                      </span>
                     </div>
-                    <hr className="my-2 border-border" />
                     <Link
                       href={panelLink}
-                      className="block px-4 py-2 hover:bg-gray-50"
+                      className="block px-4 py-3 transition-all duration-200"
+                      style={{ color: colorTheme.text }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = `${colorTheme.accent}15`;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "transparent";
+                      }}
                     >
                       My Account
                     </Link>
@@ -391,14 +399,18 @@ export default function Header() {
             )}
           </nav>
 
-          {/* Mobile Menu Button */}
           <button
-            className="md:hidden"
-            style={{ color: colorTheme.text }}
+            className="md:hidden w-10 h-10 flex items-center justify-center rounded-md transition-all duration-200"
+            style={{
+              color: colorTheme.text,
+              backgroundColor: isMenuOpen
+                ? `${colorTheme.accent}15`
+                : "transparent",
+            }}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
 
@@ -407,15 +419,26 @@ export default function Header() {
           <nav className="md:hidden py-4 flex flex-col gap-2">
             <details className="group">
               <summary
-                className="flex items-center justify-between cursor-pointer list-none"
+                className="flex items-center justify-between cursor-pointer list-none font-medium px-1 py-2"
                 style={{ color: colorTheme.text }}
               >
                 <span>Our Treatments</span>
-                <img
-                  src="/images/arrowNavDown.png"
-                  alt="Open"
-                  className="w-[14px] h-[15px] ml-[7px] mb-px transition-transform group-open:rotate-180"
-                />
+                <svg
+                  width="12"
+                  height="8"
+                  viewBox="0 0 12 8"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="transition-transform duration-300 group-open:rotate-180"
+                >
+                  <path
+                    d="M1 1.5L6 6.5L11 1.5"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </summary>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
                 {treatments.map((t) => (
@@ -439,7 +462,7 @@ export default function Header() {
 
             <Link
               href="/our-story"
-              className="transition-colors px-1 py-2"
+              className="transition-colors px-1 py-2 font-medium"
               style={{ color: colorTheme.text }}
               onClick={() => setIsMenuOpen(false)}
             >
@@ -447,7 +470,7 @@ export default function Header() {
             </Link>
             <Link
               href="/about"
-              className="transition-colors px-1 py-2"
+              className="transition-colors px-1 py-2 font-medium"
               style={{ color: colorTheme.text }}
               onClick={() => setIsMenuOpen(false)}
             >
@@ -455,7 +478,7 @@ export default function Header() {
             </Link>
             <Link
               href="/contact"
-              className="transition-colors px-1 py-2"
+              className="transition-colors px-1 py-2 font-medium"
               style={{ color: colorTheme.text }}
               onClick={() => setIsMenuOpen(false)}
             >
@@ -469,7 +492,7 @@ export default function Header() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <button
-                    className="rounded-[4px] px-4 py-2 border transition-colors"
+                    className="rounded-md px-4 py-2 border transition-colors font-medium"
                     style={{
                       borderColor: colorTheme.accent,
                       color: colorTheme.accent,
@@ -483,7 +506,7 @@ export default function Header() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <button
-                    className="rounded-[4px] px-4 py-2 hover:opacity-90"
+                    className="rounded-md px-4 py-2 hover:opacity-90 font-medium"
                     style={{
                       backgroundColor: colorTheme.accent,
                       color: colorTheme.background,
@@ -499,7 +522,7 @@ export default function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 <button
-                  className="rounded-[4px] px-4 py-2 hover:opacity-90"
+                  className="rounded-md px-4 py-2 hover:opacity-90 font-medium"
                   style={{
                     backgroundColor: colorTheme.accent,
                     color: colorTheme.background,

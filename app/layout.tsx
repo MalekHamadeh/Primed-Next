@@ -6,6 +6,7 @@ import "./globals.css";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import ValuePropBar from "@/components/value-prop-bar";
+import Script from "next/script";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -118,6 +119,31 @@ export default function RootLayout({
         <Header />
         {children}
         <Footer />
+
+        <Script
+          id="livechat-config"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+        window.__lc = window.__lc || {};
+        window.__lc.license = 19074458;
+        window.__lc.integration_name = "manual_restart_trial";
+        window.__lc.product_name = "livechat";
+      `,
+          }}
+        />
+        <Script
+          id="livechat-loader"
+          src="https://cdn.livechatinc.com/tracking.js"
+          strategy="afterInteractive"
+        />
+
+        {/* HubSpot */}
+        <Script
+          id="hubspot-loader"
+          src="//js-eu1.hs-scripts.com/146828732.js"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

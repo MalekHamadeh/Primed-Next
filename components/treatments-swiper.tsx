@@ -2,14 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { httpGet } from "@/lib/api";
-import { TreatmentsResponse, TreatmentApi } from "@/types/treatments";
+import type { TreatmentsResponse, TreatmentApi } from "@/types/treatments";
 import TreatmentCard from "./treatment-card";
+import { Loader2 } from "lucide-react";
 
-// Swiper: match legacy behavior with Scrollbar and breakpoints
+// Swiper imports
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Scrollbar } from "swiper/modules";
+import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
-import "swiper/css/scrollbar";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 type TreatmentItem = {
   id: string | number;
@@ -19,12 +21,13 @@ type TreatmentItem = {
 
 export default function TreatmentsSwiper() {
   const [items, setItems] = useState<TreatmentItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
       try {
-        // Base client already appends /api; use /v1 to get /api/v1 per project rule
+        setLoading(true);
         const res = await httpGet<TreatmentsResponse>("/treatments");
         const list = Array.isArray(res?.data) ? res.data : [];
         const mapped: TreatmentItem[] = list.map((t: TreatmentApi) => ({
@@ -32,9 +35,15 @@ export default function TreatmentsSwiper() {
           name: t.name,
           image: t.image ? `/images/${t.image}` : null,
         }));
-        if (!cancelled) setItems(mapped);
+        if (!cancelled) {
+          setItems(mapped);
+          setLoading(false);
+        }
       } catch {
-        if (!cancelled) setItems([]);
+        if (!cancelled) {
+          setItems([]);
+          setLoading(false);
+        }
       }
     };
     load();
@@ -44,32 +53,79 @@ export default function TreatmentsSwiper() {
   }, []);
 
   return (
-    <div className="treatments_swiper">
-      <div className="container mx-auto px-4">
-        <div className="row">
-          <Swiper
-            spaceBetween={10}
-            slidesPerView={1}
-            modules={[Scrollbar]}
-            scrollbar={{ draggable: true }}
-            breakpoints={{
-              740: { slidesPerView: 2 },
-              1080: { slidesPerView: 3 },
-              1300: { slidesPerView: 4 },
-            }}
-          >
-            {items.map((t) => (
-              <SwiperSlide key={t.id}>
-                <TreatmentCard
-                  id={t.id}
-                  name={t.name}
-                  image={t.image || undefined}
-                />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
+    <section className="w-full">
+      <div className="container mx-auto pt-24">
+        {loading ? (
+          <div className="flex items-center justify-center py-24">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : items.length === 0 ? (
+          <div className="text-center py-24">
+            <p className="text-muted-foreground">
+              No treatments available at the moment.
+            </p>
+          </div>
+        ) : (
+          <div className="relative">
+            <Swiper
+              spaceBetween={24}
+              slidesPerView={1}
+              modules={[Navigation, Pagination, Autoplay]}
+              pagination={{
+                clickable: true,
+                dynamicBullets: true,
+              }}
+              autoplay={{
+                delay: 5000,
+                disableOnInteraction: true,
+                pauseOnMouseEnter: true,
+              }}
+              breakpoints={{
+                640: { slidesPerView: 1.5, spaceBetween: 20 },
+                768: { slidesPerView: 2, spaceBetween: 24 },
+                1024: { slidesPerView: 3, spaceBetween: 28 },
+                1280: { slidesPerView: 4, spaceBetween: 32 },
+              }}
+              className="pb-12!"
+            >
+              {items.map((t) => (
+                <SwiperSlide
+                  key={t.id}
+                  className="h-auto"
+                >
+                  <TreatmentCard
+                    id={t.id}
+                    name={t.name}
+                    image={t.image || undefined}
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+        )}
       </div>
-    </div>
+
+      <style
+        jsx
+        global
+      >{`
+        .swiper-pagination {
+          bottom: 0 !important;
+        }
+        .swiper-pagination-bullet {
+          width: 8px;
+          height: 8px;
+          background: hsl(var(--muted-foreground));
+          opacity: 0.3;
+          transition: all 0.3s ease;
+        }
+        .swiper-pagination-bullet-active {
+          background: hsl(var(--primary));
+          opacity: 1;
+          width: 24px;
+          border-radius: 4px;
+        }
+      `}</style>
+    </section>
   );
 }

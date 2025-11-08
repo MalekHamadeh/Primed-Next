@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import Script from "next/script";
 import { useMemo, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -901,13 +900,10 @@ export default function SurveyQuestions({ treatmentName, id }: Props) {
               )}
               <div className="mx-auto max-w-[150px]">
                 <Link href="/">
-                  <Image
+                  <img
                     src="/images/primedclinic-logo.png"
-                    alt="Primed Clinic"
-                    width={150}
-                    height={26}
+                    alt="Logo"
                     className="w-full"
-                    priority
                   />
                 </Link>
               </div>

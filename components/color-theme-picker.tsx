@@ -10,9 +10,23 @@ export interface ColorTheme {
   text: string;
   accent: string;
   isDark: boolean;
+  // Optional brand-specific tokens
+  brandBarBg?: string;
+  brandBarText?: string;
 }
 
 export const colorThemes: ColorTheme[] = [
+  // Primed theme
+  {
+    id: "primed",
+    name: "Primed (Teal + Deep Green)",
+    background: "#112726",
+    text: "#FFFFFF",
+    accent: "#14B8A6",
+    isDark: true,
+    brandBarBg: "#00413c",
+    brandBarText: "#14B8A6",
+  },
   // Dark variants
   {
     id: "dark-1",
@@ -96,6 +110,12 @@ export const colorThemes: ColorTheme[] = [
     isDark: false,
   },
 ];
+
+export function getThemeById(id: string): ColorTheme {
+  const fallback = colorThemes.find((t) => t.id === "primed") ?? colorThemes[0];
+  const found = colorThemes.find((t) => t.id === id);
+  return found ?? fallback;
+}
 
 interface ColorThemePickerProps {
   onThemeChange: (theme: ColorTheme) => void;

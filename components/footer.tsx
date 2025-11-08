@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useSyncExternalStore, useEffect, useState } from "react";
 import Image from "next/image";
+import { getThemeById, type ColorTheme } from "@/components/color-theme-picker";
 
 type StoredAuth = {
   isAuthenticated: boolean;
@@ -50,83 +51,18 @@ function slugify(name: string) {
 }
 
 function useColorTheme() {
-  const [theme, setTheme] = useState({
-    background: "#112726",
-    text: "#FFFFFF",
-    accent: "#14B8A6",
+  const [theme, setTheme] = useState<ColorTheme>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("hero-color-theme") || "primed";
+      return getThemeById(saved);
+    }
+    return getThemeById("primed");
   });
 
   useEffect(() => {
     const loadTheme = () => {
-      const savedThemeId = localStorage.getItem("hero-color-theme");
-      if (savedThemeId) {
-        const themes = [
-          {
-            id: "dark-1",
-            background: "#0D1F1E",
-            text: "#FFFFFF",
-            accent: "#14B8A6",
-          },
-          {
-            id: "dark-2",
-            background: "#000000",
-            text: "#FFFFFF",
-            accent: "#60A5FA",
-          },
-          {
-            id: "dark-3",
-            background: "#0F172A",
-            text: "#FFFFFF",
-            accent: "#34D399",
-          },
-          {
-            id: "dark-4",
-            background: "#1E293B",
-            text: "#FFFFFF",
-            accent: "#A78BFA",
-          },
-          {
-            id: "dark-5",
-            background: "#134E4A",
-            text: "#FFFFFF",
-            accent: "#FB7185",
-          },
-          {
-            id: "light-1",
-            background: "#FFFFFF",
-            text: "#0F172A",
-            accent: "#0D9488",
-          },
-          {
-            id: "light-2",
-            background: "#EFF6FF",
-            text: "#1E293B",
-            accent: "#1E40AF",
-          },
-          {
-            id: "light-3",
-            background: "#F0FDF4",
-            text: "#0F172A",
-            accent: "#059669",
-          },
-          {
-            id: "light-4",
-            background: "#F5F3FF",
-            text: "#1E293B",
-            accent: "#7C3AED",
-          },
-          {
-            id: "light-5",
-            background: "#FFF7ED",
-            text: "#0F172A",
-            accent: "#EA580C",
-          },
-        ];
-        const selectedTheme = themes.find((t) => t.id === savedThemeId);
-        if (selectedTheme) {
-          setTheme(selectedTheme);
-        }
-      }
+      const saved = localStorage.getItem("hero-color-theme") || "primed";
+      setTheme(getThemeById(saved));
     };
 
     loadTheme();
@@ -393,7 +329,10 @@ export default function Footer() {
       </div>
       <div
         className="text-center py-3 text-[13px] w-full"
-        style={{ backgroundColor: "#00413c", color: "#14B8A6" }}
+        style={{
+          backgroundColor: colorTheme.brandBarBg ?? colorTheme.background,
+          color: colorTheme.brandBarText ?? colorTheme.accent,
+        }}
       >
         <p className="m-0">
           &copy; {new Date().getFullYear()} Primed Clinic. All Rights Reserved.

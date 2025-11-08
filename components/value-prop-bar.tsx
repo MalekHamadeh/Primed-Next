@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import type React from "react";
 
 import Link from "next/link";
+import { getThemeById } from "@/components/color-theme-picker";
 import {
   FaPills,
   FaHeartbeat,
@@ -22,26 +23,13 @@ function useThemeColors() {
 
   useEffect(() => {
     const updateColors = () => {
-      const savedThemeId = localStorage.getItem("hero-color-theme") || "dark-1";
-
-      // Define marquee colors for each theme
-      const marqueeColors: Record<
-        string,
-        { background: string; text: string }
-      > = {
-        "dark-1": { background: "#14B8A6", text: "#0D1F1E" }, // Teal bg, dark text
-        "dark-2": { background: "#60A5FA", text: "#000000" }, // Sky blue bg, black text
-        "dark-3": { background: "#34D399", text: "#0F172A" }, // Mint bg, navy text
-        "dark-4": { background: "#A78BFA", text: "#1E293B" }, // Lavender bg, slate text
-        "dark-5": { background: "#FB7185", text: "#134E4A" }, // Coral bg, deep teal text
-        "light-1": { background: "#0D9488", text: "#FFFFFF" }, // Deep teal bg, white text
-        "light-2": { background: "#1E40AF", text: "#EFF6FF" }, // Navy bg, light blue text
-        "light-3": { background: "#059669", text: "#F0FDF4" }, // Forest bg, mint text
-        "light-4": { background: "#7C3AED", text: "#F5F3FF" }, // Purple bg, lavender text
-        "light-5": { background: "#EA580C", text: "#FFF7ED" }, // Coral bg, peach text
-      };
-
-      setColors(marqueeColors[savedThemeId] || marqueeColors["dark-1"]);
+      const savedThemeId = localStorage.getItem("hero-color-theme") || "primed";
+      const theme = getThemeById(savedThemeId);
+      const background =
+        theme.brandBarBg ?? theme.accent;
+      const text =
+        theme.brandBarText ?? (theme.isDark ? theme.background : "#000000");
+      setColors({ background, text });
     };
 
     updateColors();
@@ -219,8 +207,8 @@ export default function ValuePropBar() {
     <div
       className="text-[12px] font-semibold py-[10px] overflow-hidden relative w-full marquee shadow-[0_-15px_25px_rgba(0,0,0,0.4)]"
       style={{
-        backgroundColor: "#00413c",
-        color: "#14B8A6",
+        backgroundColor: themeColors.background,
+        color: themeColors.text,
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
