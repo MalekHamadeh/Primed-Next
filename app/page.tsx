@@ -14,6 +14,7 @@ import ColorThemePicker, {
   type ColorTheme,
   colorThemes,
 } from "@/components/color-theme-picker";
+import AnimatedGridBackground from "@/components/animated-grid-background";
 
 const AUTH_STORAGE_KEY = "user_auth";
 
@@ -74,8 +75,13 @@ export default function Home() {
             className="bg-primed-black w-full py-23 relative overflow-hidden"
             style={{ backgroundColor: heroTheme.background }}
           >
-            {/* Subtle background accent */}
-            <div className="absolute inset-0 bg-linear-to-br from-primed-midnight-teal/20 to-transparent pointer-events-none" />
+            {/* Animated grid glow background */}
+            <AnimatedGridBackground
+              accentColor={heroTheme.accent}
+              backgroundColor={heroTheme.background}
+              isDark={heroTheme.isDark}
+              density={36}
+            />
 
             <div className="container mx-auto px-4 relative z-10">
               <div className="max-w-4xl mx-auto text-center">
