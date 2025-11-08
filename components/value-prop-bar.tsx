@@ -12,8 +12,9 @@ import {
   FaHeadset,
   FaLaptopMedical,
   FaTruck,
-  FaCircle,
 } from "react-icons/fa";
+
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 function useThemeColors() {
   const [colors, setColors] = useState({
@@ -25,8 +26,7 @@ function useThemeColors() {
     const updateColors = () => {
       const savedThemeId = localStorage.getItem("hero-color-theme") || "primed";
       const theme = getThemeById(savedThemeId);
-      const background =
-        theme.brandBarBg ?? theme.accent;
+      const background = theme.brandBarBg ?? theme.accent;
       const text =
         theme.brandBarText ?? (theme.isDark ? theme.background : "#000000");
       setColors({ background, text });
@@ -55,16 +55,8 @@ function Item({
       className="flex items-center gap-2 px-2 group"
     >
       <span className="inline-flex items-center">{icon}</span>
-      <span className="underline-anim-text">{label}</span>
+      <span>{label}</span>
     </Link>
-  );
-}
-
-function Dot() {
-  return (
-    <span className="inline-flex items-center justify-center mx-4">
-      <FaCircle size={7} />
-    </span>
   );
 }
 
@@ -128,6 +120,8 @@ export default function ValuePropBar() {
   const trackWidthRef = useRef(0);
   const segmentWidthRef = useRef(0); // width of composite segment (segmentCopies * track width)
   const rafRef = useRef<number | null>(null);
+  const isHoveringRef = useRef(false);
+  const isArrowActiveRef = useRef(false);
 
   useEffect(() => {
     function measure() {
@@ -176,6 +170,9 @@ export default function ValuePropBar() {
         while (positionRef.current <= -segW) {
           positionRef.current += segW;
         }
+        while (positionRef.current >= 0) {
+          positionRef.current -= segW;
+        }
       }
 
       // Apply transform
@@ -196,16 +193,38 @@ export default function ValuePropBar() {
   }, []);
 
   const handleMouseEnter = () => {
-    targetSpeedRef.current = 0; // ease to stop
+    isHoveringRef.current = true;
+    if (!isArrowActiveRef.current) {
+      targetSpeedRef.current = 0; // ease to stop
+    }
   };
 
   const handleMouseLeave = () => {
-    targetSpeedRef.current = baseSpeedRef.current; // ease back to running speed
+    isHoveringRef.current = false;
+    if (!isArrowActiveRef.current) {
+      targetSpeedRef.current = baseSpeedRef.current; // ease back to running speed
+    }
+  };
+
+  const accelerate = (dir: "left" | "right") => {
+    isArrowActiveRef.current = true;
+    const base = baseSpeedRef.current || 40; // fallback if not measured yet
+    const factor = 8;
+    targetSpeedRef.current = (dir === "right" ? 1 : -1) * base * factor;
+  };
+
+  const decelerate = () => {
+    isArrowActiveRef.current = false;
+    if (isHoveringRef.current) {
+      targetSpeedRef.current = 0;
+    } else {
+      targetSpeedRef.current = baseSpeedRef.current;
+    }
   };
 
   return (
     <div
-      className="text-[12px] font-semibold py-[10px] overflow-hidden relative w-full marquee shadow-[0_-15px_25px_rgba(0,0,0,0.4)]"
+      className="text-[12px] font-semibold py-[10px] overflow-hidden relative w-full marquee shadow-[0_-15px_25px_rgba(0,0,0,0.4)] group"
       style={{
         backgroundColor: themeColors.background,
         color: themeColors.text,
@@ -214,6 +233,54 @@ export default function ValuePropBar() {
       onMouseLeave={handleMouseLeave}
       ref={containerRef}
     >
+      {/* Left arrow */}
+      <button
+        type="button"
+        aria-label="Scroll left"
+        title="Press and hold"
+        className="absolute left-0 top-0 bottom-0 w-10 md:w-12 h-auto flex items-center justify-center z-10 focus:outline-none group opacity-0 pointer-events-none transition-opacity group-hover:opacity-100 group-hover:pointer-events-auto"
+        onMouseDown={() => accelerate("right")}
+        onMouseUp={decelerate}
+        onMouseLeave={decelerate}
+        onTouchStart={() => accelerate("right")}
+        onTouchEnd={decelerate}
+      >
+        <span
+          className="pointer-events-none absolute inset-0 bg-linear-to-r from-black/10 to-transparent z-0"
+          aria-hidden="true"
+        />
+        <span className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 rounded bg-black/80 text-white text-[10px] opacity-0 group-hover:opacity-100 transition-opacity z-20 whitespace-nowrap">
+          Press and hold
+        </span>
+        <span className="relative z-10 h-6 w-6 md:h-7 md:w-7 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center shadow-md transition-colors">
+          <FaChevronLeft className="text-white" />
+        </span>
+      </button>
+
+      {/* Right arrow */}
+      <button
+        type="button"
+        aria-label="Scroll right"
+        title="Press and hold"
+        className="absolute right-0 top-0 bottom-0 w-10 md:w-12 flex items-center justify-center z-10 focus:outline-none group opacity-0 pointer-events-none transition-opacity duration-200 group-hover:opacity-100 group-hover:pointer-events-auto"
+        onMouseDown={() => accelerate("left")}
+        onMouseUp={decelerate}
+        onMouseLeave={decelerate}
+        onTouchStart={() => accelerate("left")}
+        onTouchEnd={decelerate}
+      >
+        <span
+          className="pointer-events-none absolute inset-0 bg-linear-to-l from-black/10 to-transparent z-0"
+          aria-hidden="true"
+        />
+        <span className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 rounded bg-black/80 text-white text-[10px] opacity-0 group-hover:opacity-100 transition-opacity z-20 whitespace-nowrap">
+          Press and hold
+        </span>
+        <span className="relative z-10 h-6 w-6 md:h-7 md:w-7 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center shadow-md transition-colors">
+          <FaChevronRight className="text-white" />
+        </span>
+      </button>
+
       <div
         ref={scrollerRef}
         className="flex will-change-transform whitespace-nowrap"

@@ -283,27 +283,6 @@
   animation-play-state: paused;
 }
 
-/* Link underline animation: left-to-right */
-.underline-anim-text {
-  position: relative;
-}
-.underline-anim-text::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -2px;
-  height: 2px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 200ms ease;
-  color: var(--primary-foreground);
-}
-.group:hover .underline-anim-text::after {
-  transform: scaleX(1);
-}
-
 /* Swiper overrides */
 .swiper {
   height: 385px !important;

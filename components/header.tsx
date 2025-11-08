@@ -158,7 +158,7 @@ export default function Header() {
               ref={menuRef}
             >
               <button
-                className="flex items-center gap-1.5 font-medium tracking-wide transition-all duration-200 hover:opacity-80"
+                className="flex items-center gap-1.5 font-medium tracking-wide transition-all duration-200 hover:opacity-80 cursor-pointer"
                 style={{ color: colorTheme.text }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.color = colorTheme.accent;
@@ -301,7 +301,7 @@ export default function Header() {
               <div className="flex items-center gap-3 ml-10">
                 <Link href="/our-treatments">
                   <button
-                    className="rounded-md px-5 py-2.5 border font-medium tracking-wide transition-all duration-200"
+                    className="rounded-md px-5 py-2.5 border font-medium tracking-wide transition-all duration-200 cursor-pointer"
                     style={{
                       borderColor: colorTheme.accent,
                       color: colorTheme.accent,
@@ -320,7 +320,7 @@ export default function Header() {
                 </Link>
                 <Link href="/login">
                   <button
-                    className="rounded-md px-5 py-2.5 font-medium tracking-wide transition-all duration-200 hover:opacity-90"
+                    className="rounded-md px-5 py-2.5 font-medium tracking-wide transition-all duration-200 hover:opacity-90 cursor-pointer"
                     style={{
                       backgroundColor: colorTheme.accent,
                       color: colorTheme.background,
