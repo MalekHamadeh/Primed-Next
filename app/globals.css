@@ -156,15 +156,15 @@
   }
 
   /* Typography defaults from original CSS */
-  p,
+  /* p,
   span,
   li,
   input,
   button {
     @apply font-sans;
-  }
+  } */
 
-  h1,
+  /* h1,
   h2 {
     @apply font-serif font-black;
   }
@@ -174,7 +174,7 @@
   h5,
   h6 {
     @apply font-serif font-bold;
-  }
+  } */
 
   ul {
     @apply list-none p-0;

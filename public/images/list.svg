@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 200.47">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+        font-family: ProximaNova-Regular, 'Proxima Nova';
+        font-size: 25.32px;
+      }
+
+      .cls-2 {
+        fill: #14b7a5;
+      }
+
+      .cls-3 {
+        fill: none;
+        stroke: #bababd;
+        stroke-miterlimit: 10;
+        stroke-width: 2px;
+      }
+    </style>
+  </defs>
+  <line class="cls-3" x1="15" y1="15" x2="15" y2="185"/>
+  <circle class="cls-2" cx="15" cy="15" r="15"/>
+  <circle class="cls-2" cx="15" cy="100" r="15"/>
+  <circle class="cls-2" cx="15" cy="185" r="15"/>
+  <text class="cls-1" transform="translate(6.96 108.4)"><tspan x="0" y="0">2</tspan></text>
+  <text class="cls-1" transform="translate(10.11 23.22)"><tspan x="0" y="0">1</tspan></text>
+  <text class="cls-1" transform="translate(7.35 193.58)"><tspan x="0" y="0">3</tspan></text>
+</svg>

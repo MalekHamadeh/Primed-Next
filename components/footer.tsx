@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore, useEffect, useState } from "react";
+import Image from "next/image";
 
 type StoredAuth = {
   isAuthenticated: boolean;
@@ -48,10 +49,104 @@ function slugify(name: string) {
     .replace(/(^-|-$)+/g, "");
 }
 
+function useColorTheme() {
+  const [theme, setTheme] = useState({
+    background: "#112726",
+    text: "#FFFFFF",
+    accent: "#14B8A6",
+  });
+
+  useEffect(() => {
+    const loadTheme = () => {
+      const savedThemeId = localStorage.getItem("hero-color-theme");
+      if (savedThemeId) {
+        const themes = [
+          {
+            id: "dark-1",
+            background: "#0D1F1E",
+            text: "#FFFFFF",
+            accent: "#14B8A6",
+          },
+          {
+            id: "dark-2",
+            background: "#000000",
+            text: "#FFFFFF",
+            accent: "#60A5FA",
+          },
+          {
+            id: "dark-3",
+            background: "#0F172A",
+            text: "#FFFFFF",
+            accent: "#34D399",
+          },
+          {
+            id: "dark-4",
+            background: "#1E293B",
+            text: "#FFFFFF",
+            accent: "#A78BFA",
+          },
+          {
+            id: "dark-5",
+            background: "#134E4A",
+            text: "#FFFFFF",
+            accent: "#FB7185",
+          },
+          {
+            id: "light-1",
+            background: "#FFFFFF",
+            text: "#0F172A",
+            accent: "#0D9488",
+          },
+          {
+            id: "light-2",
+            background: "#EFF6FF",
+            text: "#1E293B",
+            accent: "#1E40AF",
+          },
+          {
+            id: "light-3",
+            background: "#F0FDF4",
+            text: "#0F172A",
+            accent: "#059669",
+          },
+          {
+            id: "light-4",
+            background: "#F5F3FF",
+            text: "#1E293B",
+            accent: "#7C3AED",
+          },
+          {
+            id: "light-5",
+            background: "#FFF7ED",
+            text: "#0F172A",
+            accent: "#EA580C",
+          },
+        ];
+        const selectedTheme = themes.find((t) => t.id === savedThemeId);
+        if (selectedTheme) {
+          setTheme(selectedTheme);
+        }
+      }
+    };
+
+    loadTheme();
+    window.addEventListener("storage", loadTheme);
+    window.addEventListener("theme-changed", loadTheme);
+    return () => {
+      window.removeEventListener("storage", loadTheme);
+      window.removeEventListener("theme-changed", loadTheme);
+    };
+  }, []);
+
+  return theme;
+}
+
 export default function Footer() {
   const auth = useAuthState();
   const isAuthenticated = auth.isAuthenticated === true;
   const panelLink = auth.panelLink || "/patient/treatment-plans";
+
+  const colorTheme = useColorTheme();
 
   const treatments = useMemo<Treatment[]>(
     () => [
@@ -68,16 +163,37 @@ export default function Footer() {
   );
 
   return (
-    <footer className="bg-primary text-white">
+    <footer
+      className="border-t"
+      style={{
+        backgroundColor: colorTheme.background,
+        borderTopColor: `${colorTheme.accent}33`,
+        color: colorTheme.text,
+      }}
+    >
       <div className="container mx-auto px-4">
         <div className="py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div>
-            <h3 className="text-xl font-bold mb-4">PRIMED</h3>
+          <div className="flex flex-col items-start justify-start gap-4">
+            <Image
+              src="/images/Artboard 2.svg"
+              alt="Primed Clinic"
+              width={180}
+              height={26}
+              className="w-24 pb-4"
+              priority
+            />
             <ul className="space-y-2 text-sm">
               <li>
                 <a
                   href="mailto:support@primedclinic.com.au"
-                  className="text-white/90 hover:opacity-80"
+                  className="transition-colors"
+                  style={{ color: colorTheme.text }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = colorTheme.accent)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = colorTheme.text)
+                  }
                 >
                   support@primedclinic.com.au
                 </a>
@@ -85,7 +201,14 @@ export default function Footer() {
               <li>
                 <a
                   href="tel:+615570890234"
-                  className="text-white/90 hover:opacity-80"
+                  className="transition-colors"
+                  style={{ color: colorTheme.text }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = colorTheme.accent)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = colorTheme.text)
+                  }
                 >
                   +61 5570 8902 34
                 </a>
@@ -94,7 +217,12 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4">Goals</h4>
+            <h4
+              className="font-semibold mb-4"
+              style={{ color: colorTheme.text }}
+            >
+              Goals
+            </h4>
             <ul className="space-y-2 text-sm">
               {treatments.map((t) => (
                 <li key={t.id}>
@@ -104,7 +232,14 @@ export default function Footer() {
                         ? panelLink
                         : `/questionnaire/${slugify(t.name)}/${t.id}/start-quiz`
                     }
-                    className="text-white/90 hover:opacity-80"
+                    className="transition-colors"
+                    style={{ color: colorTheme.text }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = colorTheme.accent)
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = colorTheme.text)
+                    }
                   >
                     {t.name}
                   </Link>
@@ -114,12 +249,24 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4">Quick Links</h4>
+            <h4
+              className="font-semibold mb-4"
+              style={{ color: colorTheme.text }}
+            >
+              Quick Links
+            </h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="/"
-                  className="text-white/90 hover:opacity-80"
+                  className="transition-colors"
+                  style={{ color: colorTheme.text }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = colorTheme.accent)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = colorTheme.text)
+                  }
                 >
                   Home
                 </Link>
@@ -127,7 +274,14 @@ export default function Footer() {
               <li>
                 <Link
                   href="/how-it-works"
-                  className="text-white/90 hover:opacity-80"
+                  className="transition-colors"
+                  style={{ color: colorTheme.text }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = colorTheme.accent)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = colorTheme.text)
+                  }
                 >
                   How It Works
                 </Link>
@@ -135,7 +289,14 @@ export default function Footer() {
               <li>
                 <Link
                   href="/our-doctors"
-                  className="text-white/90 hover:opacity-80"
+                  className="transition-colors"
+                  style={{ color: colorTheme.text }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = colorTheme.accent)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = colorTheme.text)
+                  }
                 >
                   Doctors
                 </Link>
@@ -144,12 +305,24 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4">Support</h4>
+            <h4
+              className="font-semibold mb-4"
+              style={{ color: colorTheme.text }}
+            >
+              Support
+            </h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="/contact"
-                  className="text-white/90 hover:opacity-80"
+                  className="transition-colors"
+                  style={{ color: colorTheme.text }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = colorTheme.accent)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = colorTheme.text)
+                  }
                 >
                   Contact Us
                 </Link>
@@ -157,7 +330,14 @@ export default function Footer() {
               <li>
                 <Link
                   href="/faq"
-                  className="text-white/90 hover:opacity-80"
+                  className="transition-colors"
+                  style={{ color: colorTheme.text }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = colorTheme.accent)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = colorTheme.text)
+                  }
                 >
                   FAQ
                 </Link>
@@ -165,7 +345,14 @@ export default function Footer() {
               <li>
                 <Link
                   href="/terms-and-conditions"
-                  className="text-white/90 hover:opacity-80"
+                  className="transition-colors"
+                  style={{ color: colorTheme.text }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = colorTheme.accent)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = colorTheme.text)
+                  }
                 >
                   Terms And Conditions
                 </Link>
@@ -173,7 +360,14 @@ export default function Footer() {
               <li>
                 <Link
                   href="/privacy"
-                  className="text-white/90 hover:opacity-80"
+                  className="transition-colors"
+                  style={{ color: colorTheme.text }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = colorTheme.accent)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = colorTheme.text)
+                  }
                 >
                   Privacy Policy
                 </Link>
@@ -181,7 +375,14 @@ export default function Footer() {
               <li>
                 <Link
                   href="/refund-policy"
-                  className="text-white/90 hover:opacity-80"
+                  className="transition-colors"
+                  style={{ color: colorTheme.text }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = colorTheme.accent)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = colorTheme.text)
+                  }
                 >
                   Refund Policy
                 </Link>
@@ -190,8 +391,11 @@ export default function Footer() {
           </div>
         </div>
       </div>
-      <div className="bg-[#25a9a8] text-center py-4 text-[13px] w-full">
-        <p className="text-white/95 m-0">
+      <div
+        className="text-center py-3 text-[13px] w-full"
+        style={{ backgroundColor: "#00413c", color: "#14B8A6" }}
+      >
+        <p className="m-0">
           &copy; {new Date().getFullYear()} Primed Clinic. All Rights Reserved.
         </p>
       </div>

@@ -82,49 +82,44 @@ function Dot() {
 
 function Track({ className }: { className?: string }) {
   return (
-    <div className={`flex items-center whitespace-nowrap ${className ?? ""}`}>
+    <div
+      className={`flex items-center gap-8 whitespace-nowrap ${className ?? ""}`}
+    >
       <Item
         href="/our-treatments"
         icon={<FaPills className="text-lg" />}
         label="Peptide Programs"
       />
-      <Dot />
       <Item
         href="/our-treatments"
         icon={<FaHeartbeat className="text-lg" />}
         label="Hormone Therapy"
       />
-      <Dot />
       <Item
         href="/our-treatments"
         icon={<FaFlask className="text-lg" />}
         label="Compounded Treatments For Your Care"
       />
-      <Dot />
       <Item
         href="/how-it-works"
         icon={<FaLaptopMedical className="text-lg" />}
         label="100% Telehealth"
       />
-      <Dot />
       <Item
         href="/contact"
         icon={<FaUserMd className="text-lg" />}
         label="FREE Consultation"
       />
-      <Dot />
       <Item
         href="/contact"
         icon={<FaHeadset className="text-lg" />}
         label="FREE Ongoing Premium Support"
       />
-      <Dot />
       <Item
         href="/faq"
         icon={<FaTruck className="text-lg" />}
         label="FREE Express Delivery Australia-Wide"
       />
-      <Dot />
     </div>
   );
 }
@@ -153,7 +148,7 @@ export default function ValuePropBar() {
       const width = el.offsetWidth;
       trackWidthRef.current = width;
       // Slow base speed: one full content width in ~120s
-      const base = width / 50;
+      const base = width / 80;
       baseSpeedRef.current = base;
       speedRef.current = base;
       targetSpeedRef.current = base;
@@ -222,10 +217,10 @@ export default function ValuePropBar() {
 
   return (
     <div
-      className="text-[15px] font-semibold py-[14px] overflow-hidden relative w-full marquee shadow-[0_-15px_25px_rgba(0,0,0,0.4)]"
+      className="text-[12px] font-semibold py-[10px] overflow-hidden relative w-full marquee shadow-[0_-15px_25px_rgba(0,0,0,0.4)]"
       style={{
-        backgroundColor: themeColors.background,
-        color: themeColors.text,
+        backgroundColor: "#00413c",
+        color: "#14B8A6",
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -247,7 +242,7 @@ export default function ValuePropBar() {
               <div
                 key={`${segIdx}-${idx}`}
                 ref={segIdx === 0 && idx === 0 ? trackRef : undefined}
-                className="flex-none"
+                className="flex-none pr-8"
               >
                 <Track />
               </div>

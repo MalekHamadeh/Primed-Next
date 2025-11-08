@@ -198,13 +198,13 @@ export default function Header() {
 
   return (
     <header
-      className="border-b sticky top-0 z-50 py-4"
+      className="border-b sticky top-0 z-50 py-10"
       style={{
         backgroundColor: colorTheme.background,
         borderBottomColor: `${colorTheme.accent}33`,
       }}
     >
-      <div className="container mx-auto px-4">
+      <div className="mx-auto px-20">
         <div className="flex items-center justify-between h-16">
           <Link
             href="/"
@@ -215,7 +215,7 @@ export default function Header() {
               alt="Primed Clinic"
               width={180}
               height={26}
-              className="w-3xs"
+              className="w-40"
               priority
             />
           </Link>
