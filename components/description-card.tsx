@@ -17,16 +17,17 @@ export default function DescriptionCard({
       className="w-full"
       {...props}
     >
-      <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+      <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-stretch">
         {/* Left Column - Image */}
-        <Image
-          src={leftImageSrc || "/placeholder.svg"}
-          alt="Woman eating healthy food after workout"
-          width={600}
-          height={800}
-          className="w-full h-auto rounded-2xl"
-          priority
-        />
+        <div className="relative w-full min-h-[400px] lg:min-h-[600px]">
+          <Image
+            src={leftImageSrc || "/placeholder.svg"}
+            alt="Woman eating healthy food after workout"
+            fill
+            className="object-cover rounded-2xl"
+            priority
+          />
+        </div>
 
         {/* Right Column - Content */}
         <div className="space-y-10">
@@ -73,7 +74,7 @@ export default function DescriptionCard({
                 className="flex gap-5 group"
               >
                 <div className="shrink-0">
-                  <div className="w-12 h-12 rounded-full bg-[#14B8A6] flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-12 h-12 rounded-lg bg-[#14B8A6] flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:scale-110 transition-transform duration-300">
                     {item.step}
                   </div>
                 </div>
