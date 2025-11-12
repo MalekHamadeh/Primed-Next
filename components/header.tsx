@@ -130,10 +130,9 @@ export default function Header() {
 
   return (
     <header
-      className="border-b sticky top-0 z-50 py-10"
+      className="sticky top-0 z-50 py-10"
       style={{
         backgroundColor: colorTheme.background,
-        borderBottomColor: `${colorTheme.accent}33`,
       }}
     >
       <div className="container mx-auto px-4">
@@ -196,16 +195,10 @@ export default function Header() {
                   className="absolute left-1/2 -translate-x-1/2 mt-4 w-screen max-w-md rounded-lg shadow-2xl overflow-hidden"
                   style={{
                     backgroundColor: colorTheme.background,
-                    border: `1px solid ${colorTheme.accent}33`,
                   }}
                   onMouseLeave={() => setIsTreatmentsOpen(false)}
                 >
-                  <div
-                    className="px-4 py-3 border-b"
-                    style={{
-                      borderBottomColor: `${colorTheme.accent}22`,
-                    }}
-                  >
+                  <div className="px-4 py-3">
                     <h3
                       className="text-sm font-semibold tracking-wider uppercase"
                       style={{ color: colorTheme.accent }}
