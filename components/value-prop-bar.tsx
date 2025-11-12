@@ -15,6 +15,7 @@ import {
   Pill,
   Truck,
 } from "lucide-react";
+import UserIcon, { TelehealthIcon } from "./svg";
 
 function useThemeColors() {
   const [colors, setColors] = useState({
@@ -82,12 +83,12 @@ function Track({ className }: { className?: string }) {
       />
       <Item
         href="/how-it-works"
-        icon={<FaLaptopMedical className="text-lg" />}
+        icon={<TelehealthIcon className="size-4" />}
         label="100% Telehealth"
       />
       <Item
         href="/contact"
-        icon={<FaUserMd className="text-lg" />}
+        icon={<UserIcon className="size-4" />}
         label="FREE Consultation"
       />
       <Item

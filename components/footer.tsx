@@ -108,7 +108,7 @@ export default function Footer() {
       }}
     >
       <div className="container mx-auto px-4">
-        <div className="py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="py-12 grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-8">
           <div className="flex flex-col items-start justify-start gap-4">
             <Image
               src="/images/Artboard 2.svg"

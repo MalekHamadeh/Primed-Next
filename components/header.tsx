@@ -220,7 +220,7 @@ export default function Header() {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3 p-4 items-stretch">
+                  <div className="grid grid-cols-3 gap-3 p-3 items-stretch">
                     {treatments.map((t) => (
                       <Link
                         key={t.id}
