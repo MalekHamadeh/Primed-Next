@@ -193,7 +193,7 @@ export default function Header() {
 
               {isTreatmentsOpen && (
                 <div
-                  className="absolute left-1/2 -translate-x-1/2 mt-4 w-screen max-w-5xl rounded-lg shadow-2xl overflow-hidden"
+                  className="absolute left-1/2 -translate-x-1/2 mt-4 w-screen max-w-md rounded-lg shadow-2xl overflow-hidden"
                   style={{
                     backgroundColor: colorTheme.background,
                     border: `1px solid ${colorTheme.accent}33`,
@@ -201,7 +201,7 @@ export default function Header() {
                   onMouseLeave={() => setIsTreatmentsOpen(false)}
                 >
                   <div
-                    className="px-6 py-4 border-b"
+                    className="px-4 py-3 border-b"
                     style={{
                       borderBottomColor: `${colorTheme.accent}22`,
                     }}
@@ -220,7 +220,7 @@ export default function Header() {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-5 gap-4 p-6 items-stretch">
+                  <div className="grid grid-cols-3 gap-3 p-4 items-stretch">
                     {treatments.map((t) => (
                       <Link
                         key={t.id}
@@ -233,7 +233,7 @@ export default function Header() {
                         <div
                           className="flex flex-col h-full rounded-lg overflow-hidden transition-all duration-300 hover:scale-105"
                           style={{
-                            backgroundColor: `${colorTheme.accent}08`,
+                            backgroundColor: `${colorTheme.accent}15`,
                             border: `1px solid ${colorTheme.accent}15`,
                           }}
                           onMouseEnter={(e) => {
@@ -272,7 +272,7 @@ export default function Header() {
 
             <Link
               href="/our-story"
-              className="font-medium tracking-wide transition-all duration-200 hover:opacity-80"
+              className="font-medium tracking-wide transition-all duration-200 hover:opacity-80 uppercase"
               style={{ color: colorTheme.text }}
               onMouseEnter={(e) =>
                 (e.currentTarget.style.color = colorTheme.accent)
@@ -285,7 +285,7 @@ export default function Header() {
             </Link>
             <Link
               href="/contact"
-              className="font-medium tracking-wide transition-all duration-200 hover:opacity-80"
+              className="font-medium tracking-wide transition-all duration-200 hover:opacity-80 uppercase"
               style={{ color: colorTheme.text }}
               onMouseEnter={(e) =>
                 (e.currentTarget.style.color = colorTheme.accent)
