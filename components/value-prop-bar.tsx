@@ -4,17 +4,17 @@ import type React from "react";
 
 import Link from "next/link";
 import { getThemeById } from "@/components/color-theme-picker";
-import {
-  FaPills,
-  FaHeartbeat,
-  FaFlask,
-  FaUserMd,
-  FaHeadset,
-  FaLaptopMedical,
-  FaTruck,
-} from "react-icons/fa";
+import { FaUserMd, FaLaptopMedical } from "react-icons/fa";
 
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import {
+  ChevronLeft,
+  ChevronRight,
+  FlaskConical,
+  Headset,
+  Heart,
+  Pill,
+  Truck,
+} from "lucide-react";
 
 function useThemeColors() {
   const [colors, setColors] = useState({
@@ -67,17 +67,17 @@ function Track({ className }: { className?: string }) {
     >
       <Item
         href="/our-treatments"
-        icon={<FaPills className="text-lg" />}
+        icon={<Pill className="size-4 " />}
         label="Peptide Programs"
       />
       <Item
         href="/our-treatments"
-        icon={<FaHeartbeat className="text-lg" />}
+        icon={<Heart className="size-4" />}
         label="Hormone Therapy"
       />
       <Item
         href="/our-treatments"
-        icon={<FaFlask className="text-lg" />}
+        icon={<FlaskConical className="size-4" />}
         label="Compounded Treatments For Your Care"
       />
       <Item
@@ -92,12 +92,12 @@ function Track({ className }: { className?: string }) {
       />
       <Item
         href="/contact"
-        icon={<FaHeadset className="text-lg" />}
+        icon={<Headset className="size-4" />}
         label="FREE Ongoing Premium Support"
       />
       <Item
         href="/faq"
-        icon={<FaTruck className="text-lg" />}
+        icon={<Truck className="size-4" />}
         label="FREE Express Delivery Australia-Wide"
       />
     </div>
@@ -253,7 +253,7 @@ export default function ValuePropBar() {
           Press and hold
         </span>
         <span className="relative z-10 h-6 w-6 md:h-7 md:w-7 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center shadow-md transition-colors">
-          <FaChevronLeft className="text-white" />
+          <ChevronLeft className="size-4 text-white" />
         </span>
       </button>
 
@@ -277,7 +277,7 @@ export default function ValuePropBar() {
           Press and hold
         </span>
         <span className="relative z-10 h-6 w-6 md:h-7 md:w-7 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center shadow-md transition-colors">
-          <FaChevronRight className="text-white" />
+          <ChevronRight className="size-4 text-white" />
         </span>
       </button>
 
