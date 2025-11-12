@@ -136,7 +136,7 @@ export default function Header() {
         borderBottomColor: `${colorTheme.accent}33`,
       }}
     >
-      <div className="container mx-auto">
+      <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link
             href="/"

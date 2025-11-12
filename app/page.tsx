@@ -15,7 +15,7 @@ export default function Home() {
         {/* Description Section */}
         <FadeInOnScroll>
           <section className="py-34">
-            <div className="container mx-auto">
+            <div className="container mx-auto px-4">
               <DescriptionCard />
             </div>
           </section>
@@ -42,7 +42,7 @@ export default function Home() {
         {/* Benefits Section (Themed two-column) */}
         <FadeInOnScroll>
           <section className="flex items-center justify-center py-12 lg:py-20">
-            <div className="container w-full">
+            <div className="container w-full px-4">
               <BenefitsCard leftImageSrc="/images/doctors_image.jpg" />
             </div>
           </section>
@@ -51,7 +51,7 @@ export default function Home() {
         {/* How It Works Section (New themed layout) */}
         <FadeInOnScroll>
           <section className="flex items-center bg-secondary justify-center py-12 lg:py-20">
-            <div className="container w-full">
+            <div className="container w-full px-4">
               <HowItWorksCard />
             </div>
           </section>
